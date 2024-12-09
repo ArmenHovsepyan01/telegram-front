@@ -29,6 +29,7 @@ const AuthProvider: FC<IAuthProvider> = ({ children }) => {
   const handleLogout = () => {
     logout();
     router.push('/login');
+    console.log(data);
   };
 
   if (isLoading) {
