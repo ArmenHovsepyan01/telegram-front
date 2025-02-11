@@ -1,0 +1,14 @@
+@font-face {
+  font-family: "icomoon";
+  src: url("../fonts/icomoon.ttf");
+}
+
+.icon-clear:before {
+  font-family: "icomoon", Helvetica, Arial, sans-serif;
+  content: "\e900";
+}
+
+.icon-menu:before {
+  font-family: "icomoon", Helvetica, Arial, sans-serif;
+  content: "\e901";
+}

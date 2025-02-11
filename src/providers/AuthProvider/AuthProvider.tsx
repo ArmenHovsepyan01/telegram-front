@@ -6,6 +6,7 @@ import { deleteCookie } from 'cookies-next';
 import { User } from '@/types';
 import { getUserProfile } from '@/app/actions';
 import useSWR from 'swr';
+import CoverLoading from '@/components/CoverLoading/CoverLoading';
 
 interface IAuthProvider {
   children: ReactNode;
@@ -23,21 +24,18 @@ const logout = () => {
 export const AuthContext = createContext<IAuthContext>({ logout });
 
 const AuthProvider: FC<IAuthProvider> = ({ children }) => {
-  const { data, isLoading } = useSWR('random', () => getUserProfile());
+  const { data, isLoading, mutate } = useSWR('random', () => getUserProfile());
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     logout();
+    await mutate(() => undefined, { revalidate: false });
     router.push('/login');
   };
 
-  if (isLoading) {
-    return <div className="h-screen w-full flex items-center justify-center">Loading...</div>;
-  }
-
   return (
     <AuthContext.Provider value={{ logout: handleLogout, user: data }}>
-      {children}
+      <CoverLoading isLoading={isLoading}>{children}</CoverLoading>
     </AuthContext.Provider>
   );
 };

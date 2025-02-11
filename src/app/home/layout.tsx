@@ -1,6 +1,6 @@
 import HomeLayout from '@/layouts/HomeLayout/HomeLayout';
-import { Suspense } from 'react';
 import AuthProvider from '@/providers/AuthProvider/AuthProvider';
+import { SocketProvider } from '@/providers/SocketProvider/SocketProvider';
 
 export default function Layout({
   children
@@ -9,9 +9,9 @@ export default function Layout({
 }>) {
   return (
     <AuthProvider>
-      <Suspense fallback={<div>Loading....</div>}>
+      <SocketProvider>
         <HomeLayout>{children}</HomeLayout>
-      </Suspense>
+      </SocketProvider>
     </AuthProvider>
   );
 }

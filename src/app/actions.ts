@@ -9,8 +9,6 @@ export async function getUserProfile() {
   const token = cookieStore.get('accessToken')?.value;
   const authService = new AuthService();
 
-  console.log('cookieStore token', token);
-
   if (!token) {
     return redirect(`/login`);
   }

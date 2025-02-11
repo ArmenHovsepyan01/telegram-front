@@ -23,7 +23,9 @@ export async function middleware(request: NextRequest) {
         console.log('Verify me response', response);
 
         const res = NextResponse.redirect(new URL('/home', request.url));
-        res.cookies.set('accessToken', accessToken);
+        res.cookies.set('accessToken', accessToken, {
+          maxAge: 31536000
+        });
         applySetCookie(request, res);
 
         return res;
