@@ -1,5 +1,6 @@
 import React, { ChangeEvent, FC, memo } from 'react';
 import classNames from 'classnames';
+import cn from 'classnames';
 
 interface InputProps {
   name: string;
@@ -7,11 +8,12 @@ interface InputProps {
   label?: string;
   placeholder?: string;
   className?: string;
-  required: boolean;
+  required?: boolean;
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   error?: string;
-  disabled: boolean;
+  disabled?: boolean;
+  inputClassName?: string;
 }
 
 const Input: FC<InputProps> = ({
@@ -24,7 +26,8 @@ const Input: FC<InputProps> = ({
   value,
   onChange,
   error,
-  disabled = false
+  disabled = false,
+  inputClassName = ''
 }) => {
   return (
     <div className={className}>
@@ -33,7 +36,7 @@ const Input: FC<InputProps> = ({
           {label}
         </label>
       )}
-      <div className="mt-2">
+      <div className={cn('mt-2', inputClassName)}>
         <input
           id={name}
           name={name}

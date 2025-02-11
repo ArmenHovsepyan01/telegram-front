@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "axios": "^1.7.9",
     "classnames": "^2.5.1",
     "cookie": "^1.0.2",
@@ -20,7 +21,10 @@
     "react": "^18",
     "react-dom": "^18",
     "react-toastify": "^10.0.6",
+    "simple-peer": "^9.11.1",
+    "socket.io-client": "^4.8.1",
     "swr": "^2.2.5",
+    "uuid": "^11.0.3",
     "yup": "^1.5.0"
   },
   "devDependencies": {
