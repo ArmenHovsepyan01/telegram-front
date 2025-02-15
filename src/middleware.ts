@@ -8,8 +8,6 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get('accessToken');
   const pathname = request.nextUrl.pathname;
 
-  console.log('pathname:', pathname);
-
   if (pathname === '/') {
     const searchParams = new URLSearchParams(request.nextUrl.searchParams);
     const accessToken = searchParams.get('idToken');

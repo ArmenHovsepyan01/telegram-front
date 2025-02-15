@@ -161,17 +161,22 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
     <CoverLoading isLoading={isLoading}>
       <div className="flex flex-col flex-1 overflow-y-auto">
         <div className="flex items-center justify-between h-16 bg-white border-b border-gray-200 px-4">
-          <div className="flex items-center">
+          <div className="flex items-center text-black">
             {targetUser ? `${targetUser.name} ${targetUser.lastName}` : 'Chat'}{' '}
           </div>
           <div className="max-w-120px">
-            <Button text="Video Call" type="button" onClick={handleVideoCall} />
+            <Button
+              text="Video Call"
+              type="button"
+              onClick={handleVideoCall}
+              className="!bg-blue-600"
+            />
           </div>
         </div>
       </div>
-      <div className="bg-gradient-to-r from-cyan-500 to-blue-500 w-full h-full  flex flex-col relative">
+      <div className="chats-bg w-full h-[calc(100%-1rem)] flex flex-col relative">
         <div
-          className="flex flex-col gap-4 h-full mb-[50px] p-4 overflow-y-auto"
+          className="flex flex-col gap-4 h-[calc(100%-4rem)] overflow-y-auto p-4 custom-scrollbar"
           ref={messageContainerRef}>
           {data &&
             data?.messages?.map((message) => (

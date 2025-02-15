@@ -14,6 +14,7 @@ interface InputProps {
   error?: string;
   disabled?: boolean;
   inputClassName?: string;
+  inputClassNames?: string;
 }
 
 const Input: FC<InputProps> = ({
@@ -27,7 +28,8 @@ const Input: FC<InputProps> = ({
   onChange,
   error,
   disabled = false,
-  inputClassName = ''
+  inputClassName = '',
+  inputClassNames = ''
 }) => {
   return (
     <div className={className}>
@@ -49,7 +51,8 @@ const Input: FC<InputProps> = ({
           autoComplete="lkajsdlaskdlnasdnsalkdnslkzn"
           className={classNames(
             'block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6',
-            disabled && 'bg-gray-100 cursor-not-allowed'
+            disabled && 'bg-gray-100 cursor-not-allowed',
+            inputClassNames
           )}
         />
       </div>

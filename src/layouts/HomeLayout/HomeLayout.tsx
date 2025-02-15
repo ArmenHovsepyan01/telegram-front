@@ -2,16 +2,15 @@
 
 import { FC, ReactNode, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '@/providers/AuthProvider/AuthProvider';
-import Chats from '@/components/Chats/Chats';
 import { useSocket } from '@/utilis/hooks/useSocket';
-import Drawer from '@/components/Drawer/Drawer';
+import Sidebar from '@/components/Sidebar/Sidebar';
 
 interface HomeLayoutProps {
   children: ReactNode;
 }
 
 const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
-  const { logout, user } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const socket = useSocket();
   const [onlineUsers, setOnlineUsers] = useState<number[]>([]);
 
@@ -27,16 +26,8 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
 
   return (
     <div className="flex h-screen">
-      <div className="md:flex flex-col bg-gray-800 max-w-[440px] w-full h-full">
-        <Chats onlineUsers={onlineUsers} />
-        <Drawer />
-        <button
-          className="text-white bg-blue-500 px-6 py-2 rounded-md my-4 w-1/3 hover:bg-blue-600 transition delay-50 mx-4"
-          onClick={logout}>
-          Logout
-        </button>
-      </div>
-      <div className="w-full h-screen shadow-lg bg-gray-200">
+      <Sidebar onlineUsers={onlineUsers} />
+      <div className="w-full h-screen shadow-lg chats-bg">
         <div className="w-full h-[calc(100%-64px)]">{children}</div>
       </div>
     </div>
