@@ -1,4 +1,5 @@
 import { FC, ReactNode } from 'react';
+import TelegramIcon from '../../assets/icons/telegram_icon.ico';
 
 interface FormProps {
   children: ReactNode;
@@ -11,8 +12,8 @@ const FormWrapper: FC<FormProps> = ({ children, title }) => {
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img
           alt="Your Company"
-          src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-          className="mx-auto h-10 w-auto"
+          src={TelegramIcon.src}
+          className="mx-auto h-10 w-auto rounded-full"
         />
         <h2 className="mt-2 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
           {title}

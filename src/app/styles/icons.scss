@@ -3,12 +3,26 @@
   src: url("../fonts/icomoon.ttf");
 }
 
-.icon-clear:before {
+@mixin font-icomoon {
   font-family: "icomoon", Helvetica, Arial, sans-serif;
-  content: "\e900";
+}
+
+.icon-clear:before {
+  @include font-icomoon;
+  content: "\e902";
 }
 
 .icon-menu:before {
-  font-family: "icomoon", Helvetica, Arial, sans-serif;
+  @include font-icomoon;
+  content: "\e900";
+}
+
+.icon-search:before {
+  @include font-icomoon;
   content: "\e901";
+}
+
+.icon-send:before {
+  @include font-icomoon;
+  content: "\e903";
 }

@@ -17,7 +17,7 @@ html {
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #171717FF;
   }
 }
 
@@ -30,5 +30,30 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+.chats-bg {
+    background: url('../assets/images/chats-bg.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #1A9CFF;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #006fb9;
   }
 }

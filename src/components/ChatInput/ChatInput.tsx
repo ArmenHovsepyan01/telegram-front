@@ -1,8 +1,7 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC, useContext, useState } from 'react';
 import Input from '@/components/ui/Input/Input';
 import { FormikProvider, useFormik } from 'formik';
 import * as Yup from 'yup';
-import Button from '@/components/ui/Button/Button';
 import { useSocket } from '@/utilis/hooks/useSocket';
 import { AuthContext } from '@/providers/AuthProvider/AuthProvider';
 
@@ -51,11 +50,13 @@ const ChatInput: FC<ChatInputProps> = ({ handleSubmit, chatId }) => {
 
   return (
     <FormikProvider value={formik}>
-      <form className="p-4 flex w-full justify-between gap-2" onSubmit={formik.handleSubmit}>
+      <form
+        className="mb-2 flex lg:max-w-[calc(100%-120px)] sm:max-w-full mx-auto w-full justify-between gap-2 bg-white rounded-md"
+        onSubmit={formik.handleSubmit}>
         <Input
           name="message"
           type="text"
-          placeholder="Type here..."
+          placeholder="Message..."
           value={formik.values.message}
           onChange={(event) => {
             formik.handleChange(event);
@@ -63,8 +64,11 @@ const ChatInput: FC<ChatInputProps> = ({ handleSubmit, chatId }) => {
           }}
           className="w-full h-full"
           inputClassName="!mt-0"
+          inputClassNames="!border-none !outline-none"
         />
-        <Button type="submit" text="Send" className="max-w-[120px]" onClick={formik.handleSubmit} />
+        <button type="submit" className="px-2">
+          <span className="icon-send text-xl text-[#8BABD8]" />
+        </button>
       </form>
     </FormikProvider>
   );

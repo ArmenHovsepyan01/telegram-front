@@ -1,5 +1,4 @@
 import React from 'react';
-import RegisterForm from '@/components/RegisterForm/RegisterForm';
 import Link from 'next/link';
 import FormWrapper from '@/components/FormWrapper/FormWrapper';
 

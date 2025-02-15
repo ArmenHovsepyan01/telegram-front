@@ -32,6 +32,14 @@ class ChatService {
 
     return data;
   }
+
+  async createChat(userMail: string) {
+    const data = await this.apiService.post(this.endpoint, {
+      userMail
+    });
+
+    return data.data;
+  }
 }
 
 export default ChatService;

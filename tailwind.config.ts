@@ -11,7 +11,11 @@ const config: Config = {
     extend: {
       colors: {
         background: 'var(--background)',
-        foreground: 'var(--foreground)'
+        foreground: 'var(--foreground)',
+        navy: '#707991'
+      },
+      textColor: {
+        default: 'var(--foreground)'
       },
       animation: {
         'dot-blink': 'dotBlink 3s infinite'
