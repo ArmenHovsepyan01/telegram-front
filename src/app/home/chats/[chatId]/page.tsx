@@ -198,7 +198,7 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
       </div>
       <VideoCallModal
         isOpen={isVideoCallModalOpen}
-        callData={{ userId: user?.id }}
+        callData={{ userId: user?.id, targetUserId: chatId }}
         onClose={() => setIsVideoCallModalOpen(false)}
         chatId={chatId}
         socket={socket}

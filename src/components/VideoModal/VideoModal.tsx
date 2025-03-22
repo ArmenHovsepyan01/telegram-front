@@ -208,11 +208,16 @@
 // export default VideoCallModal;
 //
 import React, { useEffect } from 'react';
-import Video from '@/components/Video/Video';
+import VideoChat from '@/components/VideoChat';
 
 const VideoModal = ({ isOpen, onClose, callData, chatId, socket, onOpen }) => {
   useEffect(() => {
     socket?.on('another_person_ready', () => {
+      onOpen();
+    });
+
+    socket?.on('callUser', (data) => {
+      console.log('calling', data);
       onOpen();
     });
   }, [socket, onOpen]);
@@ -221,14 +226,7 @@ const VideoModal = ({ isOpen, onClose, callData, chatId, socket, onOpen }) => {
     isOpen && (
       <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center">
         <div className="relative w-4/5 h-4/5 bg-white flex flex-col items-center">
-          <Video />
-          <button
-            onClick={() => {
-              onClose();
-            }}
-            className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-            End Call
-          </button>
+          <VideoChat callData={callData} />
         </div>
       </div>
     )
