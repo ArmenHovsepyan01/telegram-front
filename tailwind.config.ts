@@ -18,7 +18,9 @@ const config: Config = {
         default: 'var(--foreground)'
       },
       animation: {
-        'dot-blink': 'dotBlink 3s infinite'
+        'dot-blink': 'dotBlink 3s infinite',
+        'dot-pulse': 'dotPulse 1.4s infinite ease-in-out both',
+        'whatsapp-bounce': 'whatsAppBounce 2s ease-in-out infinite'
       },
       keyframes: {
         dotBlink: {
@@ -26,6 +28,17 @@ const config: Config = {
           '40%': { opacity: '1' },
           '60%': { opacity: '0' },
           '80%, 100%': { opacity: '1' }
+        },
+        dotPulse: {
+          '0%, 80%, 100%': { opacity: '0' },
+          '40%': { opacity: '1' }
+        },
+        whatsAppBounce: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '20%': { transform: 'scale(1.1)' },
+          '40%': { transform: 'scale(1)' },
+          '60%': { transform: 'scale(1.1)' },
+          '80%': { transform: 'scale(1)' }
         }
       }
     }
