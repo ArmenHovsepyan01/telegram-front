@@ -155,11 +155,8 @@ const VideoModal = ({ isOpen, socket, onClose, chatId, callMode, callerId }) => 
   function createPeer(userID) {
     const peer = new RTCPeerConnection({
       iceServers: [
-        { urls: 'stun:stun.stunprotocol.org' },
         {
-          urls: 'turn:numb.viagenie.ca',
-          credential: 'muazkh',
-          username: 'webrtc@live.com'
+          urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302']
         }
       ]
     });
