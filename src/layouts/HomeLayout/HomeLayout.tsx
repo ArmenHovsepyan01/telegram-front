@@ -4,6 +4,7 @@ import { FC, ReactNode, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '@/providers/AuthProvider/AuthProvider';
 import { useSocket } from '@/utilis/hooks/useSocket';
 import Sidebar from '@/components/Sidebar/Sidebar';
+import VideoCallProvider from '@/providers/VideoCallProvider/VideoCallProvider';
 
 interface HomeLayoutProps {
   children: ReactNode;
@@ -25,12 +26,14 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
   }, [socket, user]);
 
   return (
-    <div className="flex h-screen">
-      <Sidebar onlineUsers={onlineUsers} />
-      <div className="w-full h-screen shadow-lg chats-bg">
-        <div className="w-full h-[calc(100%-64px)]">{children}</div>
+    <VideoCallProvider>
+      <div className="flex h-screen">
+        <Sidebar onlineUsers={onlineUsers} />
+        <div className="w-full h-screen shadow-lg chats-bg">
+          <div className="w-full h-[calc(100%-64px)]">{children}</div>
+        </div>
       </div>
-    </div>
+    </VideoCallProvider>
   );
 };
 

@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { Mic, MicOff, Video, VideoOff, PhoneCall, PhoneIncoming } from 'lucide-react';
+import { Mic, MicOff, Video, VideoOff, PhoneCall } from 'lucide-react';
 import cn from 'classnames';
 import LoadingDots from '@/components/LoadingDots/LoadingDots';
+import IncomingCall from '@/components/IncomingCall/IncomingCall';
 
-const VideoModal = ({ isOpen, socket, onClose, chatId, callMode, callerId }) => {
-  const [uiState, setUiState] = useState(callMode);
+const VideoModal = ({
+  isOpen,
+  socket,
+  onClose,
+  chatId,
+  callMode,
+  callerId,
+  callingChatId,
+  setCallMode
+}) => {
   const [partnerStream, setPartnerStream] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
@@ -13,10 +22,8 @@ const VideoModal = ({ isOpen, socket, onClose, chatId, callMode, callerId }) => 
   const peerRef = useRef(null);
   const otherUser = useRef(null);
   const userStream = useRef(null);
-
-  useEffect(() => {
-    setUiState(callMode);
-  }, [callMode]);
+  const recorderRef = useRef(null);
+  const [recordedAudioUrl, setRecordedAudioUrl] = useState(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -40,11 +47,51 @@ const VideoModal = ({ isOpen, socket, onClose, chatId, callMode, callerId }) => 
   }, [isOpen, callMode, chatId, socket, onClose]);
 
   useEffect(() => {
+    if (!partnerStream || !userStream.current) return;
+
+    const audioContext = new AudioContext();
+
+    const userSource = audioContext.createMediaStreamSource(userStream.current);
+    const partnerSource = audioContext.createMediaStreamSource(partnerStream);
+
+    const destination = audioContext.createMediaStreamDestination();
+
+    userSource.connect(destination);
+    partnerSource.connect(destination);
+
+    const mixedStream = destination.stream;
+
+    const recorder = new MediaRecorder(mixedStream);
+    recorderRef.current = recorder;
+
+    let audioChunks = [];
+    recorder.ondataavailable = (event) => {
+      audioChunks.push(event.data);
+    };
+
+    recorder.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      setRecordedAudioUrl(audioUrl);
+      audioChunks = [];
+    };
+
+    recorder.start();
+
+    return () => {
+      if (recorder.state !== 'inactive') {
+        recorder.stop();
+      }
+      audioContext.close();
+    };
+  }, [partnerStream]);
+
+  useEffect(() => {
     if (!isOpen) return;
 
     const handleCallAccepted = (data) => {
       console.log('Call accepted data:', data);
-      setUiState('video');
+      setCallMode('video');
       otherUser.current = data.from;
       callUser(data.from);
     };
@@ -70,7 +117,7 @@ const VideoModal = ({ isOpen, socket, onClose, chatId, callMode, callerId }) => 
     if (userVideo.current && userStream.current) {
       userVideo.current.srcObject = userStream.current;
     }
-  }, [uiState]);
+  }, [callMode]);
 
   useEffect(() => {
     if (partnerVideo.current && partnerStream) {
@@ -79,8 +126,8 @@ const VideoModal = ({ isOpen, socket, onClose, chatId, callMode, callerId }) => 
   }, [partnerStream]);
 
   const handleAccept = () => {
-    setUiState('video');
-    socket.emit('call-accepted', { chatId, from: socket.id });
+    setCallMode('video');
+    socket.emit('call-accepted', { chatId: callingChatId, from: socket.id });
   };
 
   const stopRecording = () => {
@@ -93,7 +140,9 @@ const VideoModal = ({ isOpen, socket, onClose, chatId, callMode, callerId }) => 
   const handleDecline = () => {
     stopRecording();
 
-    socket.emit('call-declined', { chatId, from: socket.id });
+    setCallMode('declined');
+
+    socket.emit('call-declined', { chatId: callingChatId, from: socket.id });
     onClose();
   };
 
@@ -219,69 +268,78 @@ const VideoModal = ({ isOpen, socket, onClose, chatId, callMode, callerId }) => 
   function endCall() {
     stopRecording();
 
+    if (recorderRef.current && recorderRef.current.state !== 'inactive') {
+      recorderRef.current.stop();
+    }
+
     if (peerRef.current) {
       peerRef.current.close();
       peerRef.current = null;
     }
 
-    socket.emit('call-ended', { chatId, from: socket.id });
+    socket.emit('call-ended', { chatId: callingChatId || chatId, from: socket.id });
 
     setPartnerStream(null);
-    setUiState(callMode);
+    setCallMode('ended');
 
-    onClose();
+    setTimeout(() => onClose(), 1500);
   }
 
   function handleOnDecline() {
     stopRecording();
 
-    setUiState('declined');
+    setCallMode('declined');
 
     setTimeout(() => onClose(), 1500);
   }
 
   const handleCallEnded = () => {
     stopRecording();
+    if (recorderRef.current && recorderRef.current.state !== 'inactive') {
+      recorderRef.current.stop();
+    }
 
-    setUiState('ended');
+    setCallMode('ended');
 
     setTimeout(() => onClose(), 1500);
   };
 
+  console.log('recordedAudioUrl', recordedAudioUrl);
+
   return (
     isOpen && (
       <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center">
-        {uiState === 'incoming' ? (
-          <div className="bg-white p-4 rounded">
-            <div className="flex items-center gap-2">
-              <PhoneIncoming className="h-5 w-5 text-teal-700 mr-2 animate-whatsapp-bounce" />
-              <p className="text-xl">Incoming call from {callerId}</p>
-            </div>
-            <div className="mt-4">
-              <button
-                onClick={handleAccept}
-                className="bg-green-500 text-white px-4 py-2 mr-2 rounded">
-                Accept
-              </button>
-              <button onClick={handleDecline} className="bg-red-500 text-white px-4 py-2 rounded">
-                Decline
-              </button>
-            </div>
-          </div>
+        {callMode === 'incoming' ? (
+          <IncomingCall
+            callerId={callerId}
+            handleAccept={handleAccept}
+            handleDecline={handleDecline}
+          />
         ) : (
           <div className="relative w-3/5 h-4/5 bg-black flex flex-col items-center rounded-md overflow-hidden">
-            {uiState === 'video' && (
+            {callMode === 'video' && (
               <video autoPlay className="w-full h-full object-cover" ref={partnerVideo} />
             )}
 
-            {uiState === 'calling' && (
+            {callMode === 'calling' && (
               <div className="text-white text-xl my-auto flex gap-4 items-center">
                 <PhoneCall className="h-5 w-5" />
                 <span>Calling</span> <LoadingDots />
               </div>
             )}
-            {uiState === 'ended' && <div className="text-white text-xl my-auto">Call Ended</div>}
-            {uiState === 'declined' && (
+            {callMode === 'ended' && (
+              <div className="text-white text-xl my-auto">
+                {recordedAudioUrl && (
+                  <div>
+                    <a href={recordedAudioUrl} download="call-recording.webm">
+                      Download Recording
+                    </a>
+                  </div>
+                )}
+                <span>Call ended</span>
+              </div>
+            )}
+            {callMode === 'declined' && (
               <div className="text-white text-xl my-auto">Call Declined</div>
             )}
 

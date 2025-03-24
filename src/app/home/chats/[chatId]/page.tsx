@@ -10,8 +10,8 @@ import ChatInput from '@/components/ChatInput/ChatInput';
 import { AuthContext } from '@/providers/AuthProvider/AuthProvider';
 import { ChatMessage as ChatMessageInterface, ChatWithMessages } from '@/types';
 import Button from '@/components/ui/Button/Button';
-import VideoModal from '@/components/VideoModal/VideoModal';
 import { v4 } from 'uuid';
+import { useVideoCall } from '@/utilis/hooks/useVideoCall';
 
 interface ChatPageProps {
   params: {
@@ -39,10 +39,8 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
       message: string;
     }[]
   >([]);
-  const [isVideoCallModalOpen, setIsVideoCallModalOpen] = useState(false);
-  const [callMode, setCallMode] = useState('calling');
-  const [callerId, setCallerId] = useState(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
+  const { initiateCall } = useVideoCall();
 
   useEffect(() => {
     if (socket && user) {
@@ -70,24 +68,8 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
           await updateMessages(message, id);
         }
       );
-
-      socket.on('incoming-call', (data) => {
-        console.log('Incoming call:', data);
-        setCallerId(data.from);
-        setCallMode('incoming');
-        setIsVideoCallModalOpen(true);
-      });
     }
-
-    return () => {
-      socket?.off('incoming-call');
-    };
   }, [socket]);
-
-  const handleInitiateCall = () => {
-    setCallMode('calling');
-    setIsVideoCallModalOpen(true);
-  };
 
   useEffect(() => {
     if (socket) {
@@ -177,7 +159,7 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
             <Button
               text="Video Call"
               type="button"
-              onClick={handleInitiateCall}
+              onClick={initiateCall}
               className="!bg-blue-600"
             />
           </div>
@@ -205,14 +187,6 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
           <ChatInput handleSubmit={handleSubmit} chatId={chatId} />
         </div>
       </div>
-      <VideoModal
-        isOpen={isVideoCallModalOpen}
-        socket={socket}
-        onClose={() => setIsVideoCallModalOpen(false)}
-        chatId={chatId}
-        callMode={callMode}
-        callerId={callerId}
-      />
     </CoverLoading>
   );
 };

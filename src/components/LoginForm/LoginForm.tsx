@@ -26,7 +26,11 @@ const LoginForm = () => {
         const authService = new AuthService();
         setIsLoading(true);
         const response = await authService.login(values);
-        setCookie('accessToken', response.data.accessToken);
+        setCookie('accessToken', response.data.accessToken, {
+          // @ts-ignore
+          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          path: '/'
+        });
         router.push('/');
       } catch (error) {
         handleErrors(error, formikHelpers.setFieldError);
