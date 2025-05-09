@@ -1,19 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Mic, MicOff, Video, VideoOff, PhoneCall } from 'lucide-react';
 import cn from 'classnames';
 import LoadingDots from '@/components/LoadingDots/LoadingDots';
 import IncomingCall from '@/components/IncomingCall/IncomingCall';
+import { useUser } from '@/utilis/hooks/useUser';
+import { VideoCallContext } from '@/providers/VideoCallProvider/VideoCallProvider';
+import { useSocket } from '@/utilis/hooks/useSocket';
+import SocketIOTranscriber from '@/services/transcriber';
 
-const VideoModal = ({
-  isOpen,
-  socket,
-  onClose,
-  chatId,
-  callMode,
-  callerId,
-  callingChatId,
-  setCallMode
-}) => {
+const VideoModal = () => {
+  const socket = useSocket();
+  const {
+    isVideoCallModalOpen: isOpen,
+    handleModalClose: onClose,
+    callMode,
+    setCallMode,
+    callerId,
+    callingChatId,
+    chatId,
+    callId
+  } = useContext(VideoCallContext);
+
   const [partnerStream, setPartnerStream] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
@@ -22,75 +29,87 @@ const VideoModal = ({
   const peerRef = useRef(null);
   const otherUser = useRef(null);
   const userStream = useRef(null);
-  const recorderRef = useRef(null);
-  const [recordedAudioUrl, setRecordedAudioUrl] = useState(null);
+  const transcriberRef = useRef(null);
+  const [transcript, setTranscript] = useState('');
+  const user = useUser();
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    navigator.mediaDevices
-      .getUserMedia({ audio: true, video: true })
-      .then((stream) => {
-        userStream.current = stream;
-        if (userVideo.current) {
-          userVideo.current.srcObject = stream;
-        }
-        if (callMode === 'calling') {
-          console.log('Calling:', chatId);
-          socket.emit('call-request', { chatId, from: socket.id });
-        }
-      })
-      .catch((err) => {
-        console.error('Error accessing media devices:', err);
-        onClose();
+  const cleanupLocalStream = () => {
+    if (userStream.current) {
+      userStream.current.getTracks().forEach((track) => {
+        track.stop();
       });
-  }, [isOpen, callMode, chatId, socket, onClose]);
+      userStream.current = null;
+    }
+    if (userVideo.current) {
+      userVideo.current.srcObject = null;
+    }
+  };
+
+  const cleanupPartnerStream = () => {
+    if (partnerStream) {
+      partnerStream.getTracks().forEach((track) => {
+        track.stop();
+      });
+      setPartnerStream(null);
+    }
+    if (partnerVideo.current) {
+      partnerVideo.current.srcObject = null;
+    }
+  };
+
+  async function endCall() {
+    transcriberRef.current.stop();
+
+    cleanupLocalStream();
+    cleanupPartnerStream();
+    if (peerRef.current) {
+      peerRef.current.close();
+      peerRef.current = null;
+    }
+    if (userVideo.current) {
+      userVideo.current.pause();
+      userVideo.current.srcObject = null;
+    }
+    if (partnerVideo.current) {
+      partnerVideo.current.pause();
+      partnerVideo.current.srcObject = null;
+    }
+    socket.emit('call-ended', { chatId: callingChatId || chatId, from: socket.id });
+    setCallMode('ended');
+    onClose();
+  }
 
   useEffect(() => {
-    if (!partnerStream || !userStream.current) return;
-
-    const audioContext = new AudioContext();
-
-    const userSource = audioContext.createMediaStreamSource(userStream.current);
-    const partnerSource = audioContext.createMediaStreamSource(partnerStream);
-
-    const destination = audioContext.createMediaStreamDestination();
-
-    userSource.connect(destination);
-    partnerSource.connect(destination);
-
-    const mixedStream = destination.stream;
-
-    const recorder = new MediaRecorder(mixedStream);
-    recorderRef.current = recorder;
-
-    let audioChunks = [];
-    recorder.ondataavailable = (event) => {
-      audioChunks.push(event.data);
-    };
-
-    recorder.onstop = () => {
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      setRecordedAudioUrl(audioUrl);
-      audioChunks = [];
-    };
-
-    recorder.start();
-
-    return () => {
-      if (recorder.state !== 'inactive') {
-        recorder.stop();
-      }
-      audioContext.close();
-    };
-  }, [partnerStream]);
+    if (isOpen && callMode !== 'ended') {
+      navigator.mediaDevices
+        .getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          },
+          video: true
+        })
+        .then((stream) => {
+          userStream.current = stream;
+          if (userVideo.current) {
+            userVideo.current.srcObject = stream;
+          }
+          if (callMode === 'calling') {
+            socket.emit('call-request', { chatId, from: socket.id, callerId: user?.id });
+          }
+        })
+        .catch((err) => {
+          console.error('Error accessing media devices:', err);
+          endCall();
+        });
+    }
+  }, [isOpen, callMode, chatId, socket, user?.id]);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleCallAccepted = (data) => {
-      console.log('Call accepted data:', data);
       setCallMode('video');
       otherUser.current = data.from;
       callUser(data.from);
@@ -108,8 +127,8 @@ const VideoModal = ({
       socket.off('offer', handleReceiveCall);
       socket.off('answer', handleAnswer);
       socket.off('ice-candidate', handleNewICECandidateMsg);
-      socket.on('call-ended', handleCallEnded);
-      socket.on('call-declined', handleOnDecline);
+      socket.off('call-ended', handleCallEnded);
+      socket.off('call-declined', handleOnDecline);
     };
   }, [isOpen, socket]);
 
@@ -119,6 +138,28 @@ const VideoModal = ({
     }
   }, [callMode]);
 
+  const handleOnFinalTranscript = useCallback(
+    (text) => {
+      setTranscript((prev) => prev + ' ' + text);
+      socket.emit('call-transcript', { callId, text, userId: user?.id });
+    },
+    [socket, callId, user?.id]
+  );
+
+  useEffect(() => {
+    if (callMode === 'video' && userStream?.current) {
+      transcriberRef.current = new SocketIOTranscriber(60000, userStream.current, {
+        onInterimTranscript: () => {},
+        onFinalTranscript: handleOnFinalTranscript,
+        onError: (error) => {
+          console.error('Transcription error:', error);
+        }
+      });
+
+      transcriberRef.current.start();
+    }
+  }, [callMode, handleOnFinalTranscript]);
+
   useEffect(() => {
     if (partnerVideo.current && partnerStream) {
       partnerVideo.current.srcObject = partnerStream;
@@ -127,22 +168,18 @@ const VideoModal = ({
 
   const handleAccept = () => {
     setCallMode('video');
-    socket.emit('call-accepted', { chatId: callingChatId, from: socket.id });
-  };
-
-  const stopRecording = () => {
-    if (userStream.current) {
-      userStream.current.getTracks().forEach((track) => track.stop());
-      userStream.current = null;
-    }
+    socket.emit('call-accepted', { chatId: callingChatId, from: socket.id, callId });
   };
 
   const handleDecline = () => {
-    stopRecording();
-
+    cleanupLocalStream();
+    cleanupPartnerStream();
+    if (peerRef.current) {
+      peerRef.current.close();
+      peerRef.current = null;
+    }
     setCallMode('declined');
-
-    socket.emit('call-declined', { chatId: callingChatId, from: socket.id });
+    socket.emit('call-declined', { chatId: callingChatId, from: socket.id, callId });
     onClose();
   };
 
@@ -193,7 +230,6 @@ const VideoModal = ({
   }
 
   function handleNewICECandidateMsg(incoming) {
-    console.log('handleNewICECandidateMsg', peerRef.current, incoming);
     if (!peerRef.current) return;
     const candidate = new RTCIceCandidate(incoming);
     peerRef.current
@@ -209,7 +245,6 @@ const VideoModal = ({
         }
       ]
     });
-
     peer.onicecandidate = (e) => {
       if (e.candidate) {
         socket.emit('ice-candidate', {
@@ -218,7 +253,6 @@ const VideoModal = ({
         });
       }
     };
-
     peer.ontrack = (e) => {
       if (e.streams && e.streams[0]) {
         setPartnerStream(e.streams[0]);
@@ -226,7 +260,6 @@ const VideoModal = ({
         console.warn('No stream found in ontrack event');
       }
     };
-
     if (userID) {
       peer.onnegotiationneeded = () => {
         peer
@@ -265,46 +298,27 @@ const VideoModal = ({
     }
   };
 
-  function endCall() {
-    stopRecording();
-
-    if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-      recorderRef.current.stop();
-    }
-
+  function handleCallEnded() {
+    cleanupLocalStream();
+    cleanupPartnerStream();
     if (peerRef.current) {
       peerRef.current.close();
       peerRef.current = null;
     }
-
-    socket.emit('call-ended', { chatId: callingChatId || chatId, from: socket.id });
-
-    setPartnerStream(null);
     setCallMode('ended');
-
     setTimeout(() => onClose(), 1500);
   }
 
   function handleOnDecline() {
-    stopRecording();
-
-    setCallMode('declined');
-
-    setTimeout(() => onClose(), 1500);
-  }
-
-  const handleCallEnded = () => {
-    stopRecording();
-    if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-      recorderRef.current.stop();
+    cleanupLocalStream();
+    cleanupPartnerStream();
+    if (peerRef.current) {
+      peerRef.current.close();
+      peerRef.current = null;
     }
-
-    setCallMode('ended');
-
-    setTimeout(() => onClose(), 1500);
-  };
-
-  console.log('recordedAudioUrl', recordedAudioUrl);
+    setCallMode('declined');
+    onClose();
+  }
 
   return (
     isOpen && (
@@ -320,7 +334,6 @@ const VideoModal = ({
             {callMode === 'video' && (
               <video autoPlay className="w-full h-full object-cover" ref={partnerVideo} />
             )}
-
             {callMode === 'calling' && (
               <div className="text-white text-xl my-auto flex gap-4 items-center">
                 <PhoneCall className="h-5 w-5" />
@@ -329,44 +342,52 @@ const VideoModal = ({
             )}
             {callMode === 'ended' && (
               <div className="text-white text-xl my-auto">
-                {recordedAudioUrl && (
-                  <div>
-                    <a href={recordedAudioUrl} download="call-recording.webm">
-                      Download Recording
-                    </a>
-                  </div>
-                )}
                 <span>Call ended</span>
               </div>
             )}
             {callMode === 'declined' && (
               <div className="text-white text-xl my-auto">Call Declined</div>
             )}
-
-            <div className="absolute bottom-4 right-4 w-1/4 aspect-video rounded-lg overflow-hidden border-2 border-white shadow-lg">
-              <video autoPlay muted className="w-full h-full object-cover" ref={userVideo} />
+            <div
+              className={cn(
+                'absolute bottom-4 right-4 w-1/4 aspect-video rounded-lg overflow-hidden border-2 border-white shadow-lg'
+              )}>
+              <video
+                autoPlay
+                muted
+                className={cn('w-full h-full object-cover block', isVideoOff && 'hidden')}
+                ref={userVideo}
+              />
+              {isVideoOff && (
+                <div className="w-full h-full flex items-center justify-center bg-blue-500">
+                  <span className="text-white text-2xl">{user?.name || 'User'} (You)</span>
+                </div>
+              )}
             </div>
-
-            <div className="absolute bottom-4 p-4 flex justify-center gap-4">
-              <button
-                className={cn('bg-white p-2 rounded-full', isMuted && '!bg-red-500')}
-                onClick={toggleMute}>
-                {isMuted ? <MicOff className="h-5 w-5 text-white" /> : <Mic className="h-5 w-5" />}
-              </button>
-
-              <button
-                className={cn('bg-white p-2 rounded-full', isVideoOff && '!bg-red-500')}
-                onClick={toggleVideo}>
-                {isVideoOff ? (
-                  <VideoOff className="h-5 w-5 text-white" />
-                ) : (
-                  <Video className="h-5 w-5" />
-                )}
-              </button>
-
-              <button className="px-2 rounded-full bg-red-500 text-white" onClick={endCall}>
-                End Call
-              </button>
+            <div className="absolute bottom-4 p-4 flex flex-col items-center gap-4">
+              <div className="flex justify-center gap-4">
+                <button
+                  className={cn('bg-white p-2 rounded-full', isMuted && '!bg-red-500')}
+                  onClick={toggleMute}>
+                  {isMuted ? (
+                    <MicOff className="h-5 w-5 text-white" />
+                  ) : (
+                    <Mic className="h-5 w-5" />
+                  )}
+                </button>
+                <button
+                  className={cn('bg-white p-2 rounded-full', isVideoOff && '!bg-red-500')}
+                  onClick={toggleVideo}>
+                  {isVideoOff ? (
+                    <VideoOff className="h-5 w-5 text-white" />
+                  ) : (
+                    <Video className="h-5 w-5" />
+                  )}
+                </button>
+                <button className="px-2 rounded-full bg-red-500 text-white" onClick={endCall}>
+                  End Call
+                </button>
+              </div>
             </div>
           </div>
         )}

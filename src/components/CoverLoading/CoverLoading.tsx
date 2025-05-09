@@ -9,7 +9,7 @@ interface CoverLoadingProps {
 const CoverLoading: FC<CoverLoadingProps> = ({ children, isLoading }) => {
   if (isLoading) {
     return (
-      <div className="bg-white w-full h-full flex items-center justify-center">
+      <div className="bg-white w-full h-screen flex items-center justify-center">
         <LoadingSVG className="animate-spin -ml-1 mr-3 h-12 w-12" />
       </div>
     );

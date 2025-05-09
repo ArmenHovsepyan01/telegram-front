@@ -6,17 +6,18 @@ import ChatService from '@/services/chat';
 
 interface IUserList {
   users: Omit<User, 'id'>[];
+  onClose: () => void;
 }
 
 const chatService = new ChatService();
 
-const UsersList: FC<IUserList> = ({ users }) => {
+const UsersList: FC<IUserList> = ({ users, onClose }) => {
   const router = useRouter();
   const getChatWithUser = async (email: string) => {
     try {
       const data = await chatService.createChat(email);
-      console.log('data', data);
       router.push(`/home/chats/${data.id}`);
+      onClose();
     } catch (e) {
       console.log(e);
     }

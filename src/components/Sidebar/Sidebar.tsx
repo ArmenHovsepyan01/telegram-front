@@ -55,7 +55,7 @@ const Sidebar: FC<ISidebar> = ({ onlineUsers }) => {
         handleInputChange={handleInputChange}
       />
       <div className="relative w-full h-full max-h-[calc(100%-4rem)]">
-        <ChatsSearchList isOpen={isInputActive} searchTerm={inputValue} />
+        <ChatsSearchList isOpen={isInputActive} searchTerm={inputValue} onClose={handleOnClose} />
         <Chats onlineUsers={onlineUsers} />
       </div>
     </div>

@@ -24,9 +24,9 @@ const Button: FC<ButtonProps> = ({
       onClick={onClick}
       type={type}
       className={cn(
-        'flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600',
+        'flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
         className,
-        disabled || loading ? 'bg-indigo-300' : 'bg-blue-600',
+        disabled || loading ? 'bg-blue-300' : 'bg-blue-600',
         !disabled && !loading && 'hover:bg-blue-500',
         disabled && 'cursor-not-allowed'
       )}>

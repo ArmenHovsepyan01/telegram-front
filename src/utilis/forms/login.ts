@@ -11,14 +11,14 @@ const fields = [
     required: true,
     type: 'email',
     label: 'Email Address',
-    placeholder: 'example@gmail.com'
+    placeholder: 'Enter your email address'
   },
   {
     name: 'password',
     required: true,
     type: 'password',
     label: 'Password',
-    placeholder: 'example123'
+    placeholder: 'Enter your password'
   }
 ];
 

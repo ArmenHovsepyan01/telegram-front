@@ -40,6 +40,32 @@ class ChatService {
 
     return data.data;
   }
+
+  async sendFile(formData: FormData) {
+    const data = await this.apiService.post(`${this.endpoint}/transcribe`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    return data.data;
+  }
+
+  async sendBase64(audio: string) {
+    const data = await this.apiService.post(
+      `${this.endpoint}/transcribe-base64`,
+      {
+        audio
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return data.data;
+  }
 }
 
 export default ChatService;
