@@ -15,6 +15,7 @@ type VideoCallContextType = {
   callMode: string;
   setCallMode: React.Dispatch<React.SetStateAction<string>>;
   callerId: string | null;
+  callerName: string | null;
   setCallerId: React.Dispatch<React.SetStateAction<string | null>>;
   callingChatId: string | null;
   setCallingChatId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -29,6 +30,7 @@ export const VideoCallContext = createContext<VideoCallContextType>({
   callMode: 'calling',
   setCallMode: () => {},
   callerId: null,
+  callerName: null,
   setCallerId: () => {},
   callingChatId: null,
   setCallingChatId: () => {},
@@ -42,6 +44,7 @@ const VideoCallProvider = ({ children }: { children: React.ReactNode }) => {
   const [isVideoCallModalOpen, setIsVideoCallModalOpen] = useState(false);
   const [callMode, setCallMode] = useState('calling');
   const [callerId, setCallerId] = useState<string | null>(null);
+  const [callerName, setCallerName] = useState<string | null>(null);
   const [callingChatId, setCallingChatId] = useState<string | null>(null);
   const [callId, setCallId] = useState<string | null>(null);
   const params = useParams();
@@ -54,6 +57,9 @@ const VideoCallProvider = ({ children }: { children: React.ReactNode }) => {
         setCallId(data.callId);
         setCallMode('incoming');
         setIsVideoCallModalOpen(true);
+        if (data?.callerName) {
+          setCallerName(data.callerName);
+        }
       });
 
       socket.on('requested-call-id', (data) => {
@@ -89,7 +95,8 @@ const VideoCallProvider = ({ children }: { children: React.ReactNode }) => {
         setCallingChatId,
         handleModalClose,
         chatId: params?.chatId as string,
-        callId
+        callId,
+        callerName
       }}>
       <React.Fragment>{children}</React.Fragment>
       <VideoModal />

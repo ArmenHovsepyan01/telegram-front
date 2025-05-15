@@ -18,7 +18,8 @@ const VideoModal = () => {
     callerId,
     callingChatId,
     chatId,
-    callId
+    callId,
+    callerName
   } = useContext(VideoCallContext);
 
   const [partnerStream, setPartnerStream] = useState(null);
@@ -32,6 +33,13 @@ const VideoModal = () => {
   const transcriberRef = useRef(null);
   const [transcript, setTranscript] = useState('');
   const user = useUser();
+
+  const transcriptRef = useRef(null);
+  useEffect(() => {
+    if (transcriptRef.current) {
+      transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+    }
+  }, [transcript]);
 
   const cleanupLocalStream = () => {
     if (userStream.current) {
@@ -127,6 +135,9 @@ const VideoModal = () => {
     socket.on('ice-candidate', handleNewICECandidateMsg);
     socket.on('call-ended', handleCallEnded);
     socket.on('call-declined', handleOnDecline);
+    socket.on('call-transcription-recieved', (data) => {
+      setTranscript((prev) => prev + ' ' + data.text);
+    });
 
     return () => {
       socket.off('call-accepted', handleCallAccepted);
@@ -146,8 +157,7 @@ const VideoModal = () => {
 
   const handleOnFinalTranscript = useCallback(
     (text) => {
-      setTranscript((prev) => prev + ' ' + text);
-      socket.emit('call-transcript', { callId, text, userId: user?.id });
+      socket.emit('call-transcript', { callId, text, userId: user?.id, target: otherUser.current });
     },
     [socket, callId, user?.id]
   );
@@ -335,6 +345,7 @@ const VideoModal = () => {
       <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center">
         {callMode === 'incoming' ? (
           <IncomingCall
+            callerName={callerName}
             callerId={callerId}
             handleAccept={handleAccept}
             handleDecline={handleDecline}
@@ -375,11 +386,11 @@ const VideoModal = () => {
               )}
             </div>
             <div className="absolute bottom-4 p-4 flex flex-col items-center gap-4">
-              {transcript && (
-                <span className="bg-black p-2 break-all text-white rounded-md max-h-[60px] overflow-y-auto w-1/2 mx-auto">
-                  (Partner): {transcript}
-                </span>
-              )}
+              <span
+                ref={transcriptRef}
+                className="bg-black p-2 break-all text-white rounded-md max-h-[120px] overflow-y-auto w-1/2 mx-auto">
+                ({callerName || 'Partner'}): {transcript}
+              </span>
               <div className="flex justify-center gap-4">
                 <button
                   className={cn('bg-white p-2 rounded-full', isMuted && '!bg-red-500')}

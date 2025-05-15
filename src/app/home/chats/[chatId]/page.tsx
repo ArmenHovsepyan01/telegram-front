@@ -41,6 +41,7 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
   >([]);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const { initiateCall } = useVideoCall();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isLoading) {
@@ -154,7 +155,7 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
   }
 
   return (
-    <CoverLoading isLoading={isLoading}>
+    <CoverLoading isLoading={isLoading || loading}>
       <div className="flex flex-col flex-1 overflow-y-auto">
         <div className="flex items-center justify-between h-16 bg-white border-b border-gray-200 px-4">
           <div className="flex items-center text-black">
@@ -180,6 +181,7 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
                 key={message.id}
                 message={message}
                 isUser={message.userId === user?.id}
+                setLoading={setLoading}
               />
             ))}
           {typingUsers?.length > 0 && (

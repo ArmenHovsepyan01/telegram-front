@@ -34,7 +34,7 @@ const Chats: FC<ChatProps> = ({ onlineUsers, newChats }) => {
       ) : (
         <nav className="flex flex-col flex-1 overflow-y-auto h-full px-2 py-4 gap-2">
           {[...(data?.data || []), ...newChats]?.map((chat) => {
-            const user = chat.users[0];
+            const user = chat?.users?.[0];
             if (!user) return null;
             const isOnline = onlineUsers.includes(user.id);
             const selectChat = () => handleSelectChat(chat.id);

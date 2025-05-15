@@ -28,9 +28,10 @@ const getPhoneIconByCallStatus = (status: CallStatus, isUser = false) => {
 interface ChatMessageProps {
   message: ChatMessageInterface;
   isUser?: boolean;
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ChatMessage: FC<ChatMessageProps> = ({ message, isUser }) => {
+const ChatMessage: FC<ChatMessageProps> = ({ message, isUser, setLoading }) => {
   const router = useRouter();
 
   if (message.type === 'call' && message.status) {
@@ -54,8 +55,15 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, isUser }) => {
             <Bot
               className="h-5 w-5 text-blue-700 cursor-pointer"
               onClick={async () => {
-                const data = await chatService.createAIChat(message.id);
-                router.push(`/home/chats/${data.chatId}/call/${data.callId}`);
+                setLoading?.(true);
+                try {
+                  const data = await chatService.createAIChat(message.id);
+                  router.push(`/home/chats/${data.chatId}/call/${data.callId}`);
+                } catch (error) {
+                  console.error('Error creating AI chat:', error);
+                } finally {
+                  setLoading?.(false);
+                }
               }}
             />
           </Tippy>

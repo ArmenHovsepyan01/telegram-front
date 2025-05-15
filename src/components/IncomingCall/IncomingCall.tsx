@@ -3,11 +3,17 @@ import { PhoneIncoming } from 'lucide-react';
 
 interface IncomingCallProps {
   callerId: string;
+  callerName: string;
   handleAccept: () => void;
   handleDecline: () => void;
 }
 
-const IncomingCall: FC<IncomingCallProps> = ({ callerId, handleAccept, handleDecline }) => {
+const IncomingCall: FC<IncomingCallProps> = ({
+  callerId,
+  callerName,
+  handleAccept,
+  handleDecline
+}) => {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -37,7 +43,7 @@ const IncomingCall: FC<IncomingCallProps> = ({ callerId, handleAccept, handleDec
       <audio ref={audioRef} src="/ringtones/xylophone.mp3" autoPlay loop />
       <div className="flex items-center gap-2">
         <PhoneIncoming className="h-5 w-5 text-teal-700 mr-2 animate-whatsapp-bounce" />
-        <p className="text-xl">Incoming call from {callerId}</p>
+        <p className="text-xl">Incoming call from {callerName || callerId}</p>
       </div>
       <div className="mt-4">
         <button

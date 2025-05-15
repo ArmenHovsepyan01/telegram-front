@@ -43,12 +43,6 @@ const config: Config = {
       }
     }
   },
-  screens: {
-    lg: { max: "1440px" },
-    md: { max: "1200px" },
-    sm: { max: "768px" },
-    xs: { max: "480px" },
-  },
   plugins: []
 };
 export default config;
