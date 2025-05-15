@@ -4,14 +4,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import UserService from '@/services/user';
 import debounce from 'lodash/debounce';
 import UsersList from '@/components/UsersList/UsersList';
+import { ChatResponse } from '@/types';
 
 interface IChatsSearchList {
   isOpen: boolean;
   searchTerm?: string;
   onClose: () => void;
+  addNewChat: (chat: ChatResponse) => void;
 }
 
-const ChatsSearchList: FC<IChatsSearchList> = ({ isOpen, searchTerm = '', onClose }) => {
+const ChatsSearchList: FC<IChatsSearchList> = ({
+  isOpen,
+  searchTerm = '',
+  onClose,
+  addNewChat
+}) => {
   const userService = new UserService();
   const shouldFetch = isOpen && searchTerm.length > 0;
 
@@ -42,7 +49,7 @@ const ChatsSearchList: FC<IChatsSearchList> = ({ isOpen, searchTerm = '', onClos
           className="absolute inset-x-0 top-0 max-w-[440px] w-full h-full bg-gray-100 shadow-lg z-20">
           <div className="flex flex-col p-2 h-full pb-14 gap-2">
             {data ? (
-              <UsersList users={data?.data} onClose={onClose} />
+              <UsersList users={data?.data} onClose={onClose} addNewChat={addNewChat} />
             ) : isLoading ? (
               <div>Loading...</div>
             ) : (

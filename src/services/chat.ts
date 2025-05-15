@@ -41,6 +41,14 @@ class ChatService {
     return data.data;
   }
 
+  async createAIChat(callId: string): Promise<{ callId: string; chatId; string }> {
+    const data = await this.apiService.post(`${this.endpoint}/assistant/thread`, {
+      callId
+    });
+
+    return data.data;
+  }
+
   async sendFile(formData: FormData) {
     const data = await this.apiService.post(`${this.endpoint}/transcribe`, formData, {
       headers: {

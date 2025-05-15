@@ -2,6 +2,7 @@ import { ChangeEvent, FC, useCallback, useEffect, useRef, useState } from 'react
 import SearchBar from '@/components/SearchBar/SearchBar';
 import ChatsSearchList from '@/components/ChatsSearchList/ChatsSearchList';
 import Chats from '@/components/Chats/Chats';
+import { Chat, ChatResponse } from '@/types';
 
 interface ISidebar {
   onlineUsers: number[];
@@ -11,6 +12,7 @@ const Sidebar: FC<ISidebar> = ({ onlineUsers }) => {
   const listRef = useRef<HTMLDivElement>(null);
   const [isInputActive, setIsInputActive] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [newChats, setNewChats] = useState<ChatResponse[]>([]);
 
   const handleInputFocus = useCallback(() => {
     setIsInputActive(true);
@@ -47,6 +49,8 @@ const Sidebar: FC<ISidebar> = ({ onlineUsers }) => {
     };
   }, [isInputActive, handleOnClose]);
 
+  const handleAddNewChat = (chat: ChatResponse) => setNewChats((prevState) => [...prevState, chat]);
+
   return (
     <div className="md:flex flex-col bg-white max-w-[440px] w-full h-full" ref={listRef}>
       <SearchBar
@@ -55,8 +59,13 @@ const Sidebar: FC<ISidebar> = ({ onlineUsers }) => {
         handleInputChange={handleInputChange}
       />
       <div className="relative w-full h-full max-h-[calc(100%-4rem)]">
-        <ChatsSearchList isOpen={isInputActive} searchTerm={inputValue} onClose={handleOnClose} />
-        <Chats onlineUsers={onlineUsers} />
+        <ChatsSearchList
+          isOpen={isInputActive}
+          searchTerm={inputValue}
+          onClose={handleOnClose}
+          addNewChat={handleAddNewChat}
+        />
+        <Chats onlineUsers={onlineUsers} newChats={newChats} />
       </div>
     </div>
   );

@@ -24,7 +24,7 @@ const UserInfo: FC<IUserInfo> = ({ name, email, avatar }) => {
         </div>
         <div className="ml-2">
           <h3 className="font-semibold">{name}</h3>
-          <p className="text-xs text-gray-500">{email}</p>
+          <p className="text-xs text-gray-500 xs:hidden">{email}</p>
         </div>
       </div>
     </div>

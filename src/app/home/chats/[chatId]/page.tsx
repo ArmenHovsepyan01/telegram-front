@@ -43,6 +43,12 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
   const { initiateCall } = useVideoCall();
 
   useEffect(() => {
+    if (!isLoading) {
+      scrollDown();
+    }
+  }, [isLoading]);
+
+  useEffect(() => {
     if (socket && user) {
       socket.emit('joinChat', {
         chatId,
@@ -54,7 +60,6 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
   useEffect(() => {
     if (socket) {
       socket.on('receiveMessage', async (receivedMessage: ChatMessageInterface) => {
-        console.log('New message received:', receivedMessage);
         if (!data?.messages.map((m) => m.id).includes(receivedMessage.id)) {
           await addNewMessage(receivedMessage);
         }
@@ -139,14 +144,14 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
     [mutate, data]
   );
 
-  const scrollDown = () => {
+  function scrollDown() {
     if (messageContainerRef.current) {
       messageContainerRef.current.scrollTo({
         top: messageContainerRef.current.scrollHeight,
         behavior: 'smooth'
       });
     }
-  };
+  }
 
   return (
     <CoverLoading isLoading={isLoading}>
@@ -173,7 +178,7 @@ const ChatPage: FC<ChatPageProps> = ({ params: { chatId } }) => {
             data?.messages?.map((message) => (
               <ChatMessage
                 key={message.id}
-                message={message.message}
+                message={message}
                 isUser={message.userId === user?.id}
               />
             ))}

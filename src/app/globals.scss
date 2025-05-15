@@ -34,8 +34,8 @@ body {
 }
 
 .chats-bg {
-    background: url('../assets/images/chats-bg.png') no-repeat center center fixed;
-    background-size: cover;
+  background: url('../assets/images/chats-bg.png') no-repeat center center fixed;
+  background-size: cover;
 }
 
 .custom-scrollbar {
@@ -55,5 +55,62 @@ body {
 
   &::-webkit-scrollbar-thumb:hover {
     background: #006fb9;
+  }
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.blinking-circle {
+  display: inline-block;
+  margin-left: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: #006064;
+  border-radius: 50%;
+  animation: blink 1s infinite;
+}
+
+.scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #9c9c9c;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #17a2a3;
+  }
+}
+
+.custom-markdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  word-break: break-word;
+
+  ol {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  table thead {
+    th {
+      text-align: left;
+    }
   }
 }

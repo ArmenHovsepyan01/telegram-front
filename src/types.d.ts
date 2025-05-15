@@ -1,3 +1,5 @@
+import { CallStatus } from '@/utilis/enums';
+
 export type User = {
   id: number;
   name: string;
@@ -6,13 +8,23 @@ export type User = {
   nickname: string;
 };
 
-export interface ChatMessage {
+export interface Call {
+  caller_id: number;
+  startedAt: Date;
+  endedAt: Date;
+  status: CallStatus;
+}
+
+export interface ChatMessage extends Call {
   id: string;
   message: string;
   userId: number;
   chatId: string;
   created_at: Date;
   updated_at: Date;
+  type: 'message' | 'call';
+  role: 'user' | 'assistant';
+  inProgress?: boolean;
 }
 
 export interface Chat {

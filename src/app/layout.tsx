@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './globals.scss';
+import 'tippy.js/dist/tippy.css';
 
 const poppins = localFont({
   src: './fonts/Poppins-Regular.ttf',

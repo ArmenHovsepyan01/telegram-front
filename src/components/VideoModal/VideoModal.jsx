@@ -58,7 +58,9 @@ const VideoModal = () => {
   };
 
   async function endCall() {
-    transcriberRef.current.stop();
+    if (!!transcriberRef?.current) {
+      transcriberRef.current.stop();
+    }
 
     cleanupLocalStream();
     cleanupPartnerStream();
@@ -74,9 +76,13 @@ const VideoModal = () => {
       partnerVideo.current.pause();
       partnerVideo.current.srcObject = null;
     }
-    socket.emit('call-ended', { chatId: callingChatId || chatId, from: socket.id });
+    socket.emit('call-ended', { chatId: callingChatId || chatId, from: socket.id, callId });
     setCallMode('ended');
     onClose();
+
+    setTimeout(() => {
+      window.location.reload();
+    }, [500]);
   }
 
   useEffect(() => {
@@ -306,7 +312,11 @@ const VideoModal = () => {
       peerRef.current = null;
     }
     setCallMode('ended');
-    setTimeout(() => onClose(), 1500);
+
+    setTimeout(() => {
+      onClose();
+      window.location.reload();
+    }, [500]);
   }
 
   function handleOnDecline() {
@@ -365,6 +375,11 @@ const VideoModal = () => {
               )}
             </div>
             <div className="absolute bottom-4 p-4 flex flex-col items-center gap-4">
+              {transcript && (
+                <span className="bg-black p-2 break-all text-white rounded-md max-h-[60px] overflow-y-auto w-1/2 mx-auto">
+                  (Partner): {transcript}
+                </span>
+              )}
               <div className="flex justify-center gap-4">
                 <button
                   className={cn('bg-white p-2 rounded-full', isMuted && '!bg-red-500')}

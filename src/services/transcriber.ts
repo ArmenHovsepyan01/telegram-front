@@ -43,7 +43,10 @@ export default class OpenAITranscriber {
           JSON.stringify({
             type: 'transcription_session.update',
             session: {
-              input_audio_transcription: { model: 'gpt-4o-mini-transcribe', language: 'en' },
+              input_audio_transcription: {
+                model: 'gpt-4o-transcribe',
+                language: 'en'
+              },
               turn_detection: {
                 prefix_padding_ms: 600,
                 silence_duration_ms: 800,
