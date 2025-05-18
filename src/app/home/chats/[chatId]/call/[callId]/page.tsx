@@ -12,6 +12,7 @@ import ChatInput from '@/components/ChatInput/ChatInput';
 import ChatService from '@/services/chat';
 import TypingLoading from '@/components/TypingLoading';
 import { Bot } from 'lucide-react';
+import TranscriptDownloader from '@/components/DownloadTranscript';
 
 interface ChatPageProps {
   params: {
@@ -151,6 +152,7 @@ const CallsPage: FC<ChatPageProps> = ({ params: { callId, chatId } }) => {
         <div className="flex items-center gap-2 h-16 bg-white border-b border-gray-200 px-4">
           <div className="flex items-center text-black">Summarization AI</div>
           <Bot className="h-5 w-5 text-blue-700 cursor-pointer" />
+          <TranscriptDownloader callId={callId} />
         </div>
       </div>
       <div className="chats-bg w-full h-[calc(100%-1rem)] flex flex-col relative">

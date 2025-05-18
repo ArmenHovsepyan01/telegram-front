@@ -2,7 +2,7 @@ import { ChangeEvent, FC, useCallback, useEffect, useRef, useState } from 'react
 import SearchBar from '@/components/SearchBar/SearchBar';
 import ChatsSearchList from '@/components/ChatsSearchList/ChatsSearchList';
 import Chats from '@/components/Chats/Chats';
-import { Chat, ChatResponse } from '@/types';
+import { ChatResponse } from '@/types';
 
 interface ISidebar {
   onlineUsers: number[];
@@ -52,7 +52,9 @@ const Sidebar: FC<ISidebar> = ({ onlineUsers }) => {
   const handleAddNewChat = (chat: ChatResponse) => setNewChats((prevState) => [...prevState, chat]);
 
   return (
-    <div className="md:flex flex-col bg-white max-w-[440px] w-full h-full" ref={listRef}>
+    <div
+      className="md:flex flex-col bg-white lg:max-w-[440px] w-full h-full md:max-w-[240px]"
+      ref={listRef}>
       <SearchBar
         handleInputFocus={handleInputFocus}
         inputValue={inputValue}

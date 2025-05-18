@@ -1,8 +1,7 @@
-import { FC, memo, useCallback } from 'react';
+import { FC, memo, useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { motion, AnimatePresence } from 'framer-motion';
 import UserService from '@/services/user';
-import debounce from 'lodash/debounce';
 import UsersList from '@/components/UsersList/UsersList';
 import { ChatResponse } from '@/types';
 
@@ -20,16 +19,18 @@ const ChatsSearchList: FC<IChatsSearchList> = ({
   addNewChat
 }) => {
   const userService = new UserService();
-  const shouldFetch = isOpen && searchTerm.length > 0;
+  const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
 
-  const debouncedFetcher = useCallback(
-    debounce((term: string) => userService.searchUsers(term), 100),
-    []
-  );
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedTerm(searchTerm), 200);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  const shouldFetch = isOpen && debouncedTerm.length > 0;
 
   const { data, isLoading } = useSWR(
-    shouldFetch ? ['searchUsers', searchTerm] : null,
-    () => debouncedFetcher(searchTerm),
+    shouldFetch ? ['searchUsers', debouncedTerm] : null,
+    () => userService.searchUsers(debouncedTerm),
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,

@@ -11,3 +11,7 @@ export enum UserEndpoints {
 export enum ChatEndpoints {
   GET_CHATS = '/chats'
 }
+
+export enum CallEndpoints {
+  GET_CALL = '/calls'
+}
