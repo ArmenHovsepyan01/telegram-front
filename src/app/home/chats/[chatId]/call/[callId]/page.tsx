@@ -85,11 +85,13 @@ const CallsPage: FC<ChatPageProps> = ({ params: { callId, chatId } }) => {
   }, [socket, data?.messages]);
 
   const handleSubmit = async (values: { message: string }) => {
+    if (isTyping || !!data?.messages?.filter((m) => m.inProgress)?.length) return;
+
     const message = {
       ...values,
       id: v4(),
       userId: user?.id,
-      role: 'user'
+      role: 'user',
     };
 
     try {

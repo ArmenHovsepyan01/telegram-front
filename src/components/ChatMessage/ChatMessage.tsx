@@ -43,14 +43,24 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, isUser, setLoading }) => {
             isUser && 'float-right'
           )}>
           {getPhoneIconByCallStatus(message.status, isUser)}
-          <span>
-            Video call{' '}
-            {!message.endedAt
-              ? `0 sec`
-              : moment(message.endedAt).diff(moment(message.startedAt), 'minutes') > 0
-                ? moment(message.endedAt).diff(moment(message.startedAt), 'minutes') + ' min'
-                : moment(message.endedAt).diff(moment(message.startedAt), 'seconds') + ' sec'}
-          </span>
+          {['missed', 'declined'].includes(message.status) ? (
+            <span>Missed call</span>
+          ) : (
+            <span>
+              Video call
+              {!message.endedAt
+                ? `0 sec`
+                : (() => {
+                    const duration = moment.duration(
+                      moment(message.endedAt).diff(moment(message.startedAt))
+                    );
+                    const minutes = duration.minutes();
+                    const seconds = duration.seconds();
+                    return minutes > 0 ? ` ${minutes} min ${seconds} sec` : `${seconds} sec`;
+                  })()}
+            </span>
+          )}
+
           <Tippy content="Ask AI" placement="bottom" className="cursor-pointer">
             <Bot
               className="h-5 w-5 text-blue-700 cursor-pointer"
