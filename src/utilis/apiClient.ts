@@ -13,13 +13,13 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // // @ts-ignore
-    // config.headers = {
-    //   ...config.headers,
-    //   'ngrok-skip-browser-warning': 'true',
-    //   // optionally override User-Agent too
-    //   'User-Agent': 'MyApp/1.0.0'
-    // };
+    // @ts-ignore
+    config.headers = {
+      ...config.headers,
+      'ngrok-skip-browser-warning': 'true',
+      // optionally override User-Agent too
+      'User-Agent': 'MyApp/1.0.0'
+    };
 
     return config;
   },

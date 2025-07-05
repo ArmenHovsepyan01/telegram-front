@@ -20,6 +20,10 @@ class UserService {
       params: searchTerm ? { searchTerm } : {}
     });
   }
+
+  async saveFCMToken(data: { fcmToken: string }) {
+    return await this.apiService.post(UserEndpoints.FCM_TOKEN, data);
+  }
 }
 
 export default UserService;

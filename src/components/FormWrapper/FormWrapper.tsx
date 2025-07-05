@@ -1,5 +1,5 @@
 import { FC, ReactNode } from 'react';
-import TelegramIcon from '../../assets/icons/telegram_icon.ico';
+import TelegramIcon from '../../assets/icons/telegram_icon.png';
 
 interface FormProps {
   children: ReactNode;

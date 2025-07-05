@@ -5,7 +5,8 @@ export enum AuthEndpoints {
 }
 
 export enum UserEndpoints {
-  CREATE = '/users'
+  CREATE = '/users',
+  FCM_TOKEN = '/users/fcm-token'
 }
 
 export enum ChatEndpoints {

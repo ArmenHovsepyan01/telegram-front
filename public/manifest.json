@@ -1,0 +1,7 @@
+{
+  "name": "Messenger",
+  "short_name": "Messenger",
+  "theme_color": "#dca9a9",
+  "background_color": "#000000",
+  "display": "standalone"
+}

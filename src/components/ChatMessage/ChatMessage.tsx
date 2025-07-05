@@ -49,14 +49,14 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, isUser, setLoading }) => {
             <span>
               Video call
               {!message.endedAt
-                ? `0 sec`
+                ? ` 0 sec`
                 : (() => {
                     const duration = moment.duration(
                       moment(message.endedAt).diff(moment(message.startedAt))
                     );
                     const minutes = duration.minutes();
                     const seconds = duration.seconds();
-                    return minutes > 0 ? ` ${minutes} min ${seconds} sec` : `${seconds} sec`;
+                    return minutes > 0 ? ` ${minutes} min ${seconds} sec` : ` ${seconds} sec`;
                   })()}
             </span>
           )}
