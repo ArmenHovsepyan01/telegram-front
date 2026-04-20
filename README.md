@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Telegram Front
+
+Frontend for a modern real-time Telegram-like communication platform built with **Next.js 14**, **React**, **TypeScript**, and **Socket.IO**.
+
+## Overview
+
+This project provides the client application for:
+
+- secure authentication and session flow
+- real-time chat experience
+- online presence and typing indicators
+- WebRTC-based video calling integration
+- AI-enhanced communication workflows
+
+It is designed to work with the companion backend API/WebSocket server.
+
+## Core Features
+
+### 1) Authentication & Access Control
+
+- Registration and login flows
+- Form-level validation with Yup + Formik
+- Token-based authentication via cookies
+- Route protection through Next.js middleware
+- User profile bootstrap after auth
+
+### 2) Real-Time Chat
+
+- Chat list and one-to-one conversation view
+- Instant message delivery with socket events
+- Message optimistic updates + acknowledgement handling
+- Typing indicator support
+- Online/offline user presence updates
+
+### 3) Video Communication
+
+- Integrated video call entry from chat
+- WebRTC peer connection flow
+- Local and remote media stream rendering
+- Real-time signaling over Socket.IO
+
+### 4) AI & Transcription-Ready Experience (Strong Side)
+
+This frontend is structured to support advanced AI communication features, including:
+
+- **Live transcription** powered by **OpenAI models** during ongoing calls/sessions
+- **Post-call transcription summaries** for fast conversation recap
+- **AI agent support** for intelligent assistance, follow-up, and context-aware chat workflows
+
+These capabilities are enabled through backend integrations while this client handles the UX, real-time events, and user interaction flow.
+
+## Tech Stack
+
+- Next.js 14 (App Router)
+- React 18
+- TypeScript
+- Socket.IO Client
+- Axios
+- SWR
+- Formik + Yup
+- Tailwind CSS + SCSS
+- Headless UI
+- simple-peer / WebRTC
+
+## Project Structure
+
+Key areas:
+
+- `src/app` – routes and page-level modules
+- `src/components` – reusable UI and chat/video components
+- `src/providers` – auth and socket providers
+- `src/services` – API service layer
+- `src/utilis/hooks` – real-time and WebRTC hooks
+- `src/utilis/forms` – form configs and validation schemas
+
+## Environment Variables
+
+Create a `.env.local` file:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_WEBSOCKET_URL=http://localhost:5000
+```
+
+`NEXT_PUBLIC_WEBSOCKET_URL` is optional; if omitted, the app falls back to `http://localhost:5000`.
 
 ## Getting Started
 
-First, run the development server:
+### 1) Install dependencies
+
+```bash
+npm install
+```
+
+### 2) Run development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open: `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` – start dev server
+- `npm run build` – create production build
+- `npm run start` – run production server
+- `npm run lint` – run ESLint
 
-## Learn More
+## Why This Frontend Is Strong
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Real-time-first architecture for chat/call interactions
+- Clear separation between API/services, providers, and UI
+- Scalable foundation for AI-driven communication experiences
+- Production-friendly auth routing and session handling
+- Smooth path for voice intelligence features (live transcripts + after-call summaries + AI agent support)
